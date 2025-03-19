@@ -477,10 +477,42 @@ show_crontab() {
 show_main_menu
 ```
 
+## Beberapa ERROR pada soal ini
 
+Tidak terdapat direktori dan file dari logs/core.log saat menjalankan ./core_monitor.sh.
+![Image](https://github.com/user-attachments/assets/90bef386-af2d-418a-b93d-13c3ca5e137a)
+Solusi: Menambahkan command ini ke dalam core_monitor.sh dan frag_monitor.sh.
+```bash
+$ mkdir -p "LOG_DIR"
+```
 
+Kurang dalam menambahkan kata "fi" setelah fungsi if else berakhir.
+![Image](https://github.com/user-attachments/assets/814ac9fb-fd97-4f70-88f5-01d82019ece9)
+Solusi: Menambahkan kata fi pada saat if else berakhir.
 
+Waktu saat ini tidak muncul pada output fragment.log.
+![Image](https://github.com/user-attachments/assets/ac4afd8b-36fc-4075-9014-9922864c2903)
+Peyebabnya adalah perbedaan penaaman variabel times pada frag_monitor.sh.
 
+Kurang dalam menambahkan kata "esac" setelah fungsi case option berakhir
+![Image](https://github.com/user-attachments/assets/7bf70497-dab0-4a1b-a208-189e7a07785e)
+Solusi: menambahkan kata "esac" setelah case option berakhir.
+
+Tidak dapat menajalankan frag_monitor.sh jikan menajalankan core_monitor.sh.
+![Image](https://github.com/user-attachments/assets/626d01db-7f45-4b5a-8dde-13b333191533)
+Solusi: menghapus ./scripts pada ./scripts/frag_monitor.sh yang terdapat pada shell scripts core_monitor.sh dan membuat command.
+```bash
+./frag_monitor.sh
+```
+
+## Revisi Soal 2
+
+Tidak dapat menajalankan frag_monitor.sh setelah menajalankan core_monitor.sh.
+![Image](https://github.com/user-attachments/assets/626d01db-7f45-4b5a-8dde-13b333191533)
+Solusi: menghapus ./scripts pada ./scripts/frag_monitor.sh yang terdapat pada shell scripts core_monitor.sh dan membuat command. Hal tersebut terjadi karena shell scripts frag_monitor.sh sudah berada pada folder yang sama sehingga tidak perlu mendefinisikan ./scripts lagi.
+```bash
+./frag_monitor.sh
+```
 
 
 
