@@ -1,3 +1,6 @@
+# Soal 2 
+
+
 # Soal 3 modul 1 sisop
 
 install text editor seperti gedit
