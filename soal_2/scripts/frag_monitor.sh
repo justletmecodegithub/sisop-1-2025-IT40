@@ -5,7 +5,7 @@ FRAG_LOG="$LOG_DIR/fragment.log"
 
 mkdir -p "$LOG_DIR"
 
-timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+times=$(date +"%Y-%m-%d %H:%M:%S")
 
 echo "-----------------------------------------"
 echo "            Arcaea Fragment              "
