@@ -20,4 +20,4 @@ echo "======================================"
 
 echo "[$times] - Core Usage [$cpu_usage%] - Terminal Model [$cpu_model]" >> "$CORE_LOG"
 
-./scripts/frag_monitor.sh
+
