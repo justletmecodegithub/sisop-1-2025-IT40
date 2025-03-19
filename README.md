@@ -366,7 +366,7 @@ times=$(date +"%Y-%m-%d %H:%M:%S")
 echo "[$times] - Fragment Usage [$ram_usage_percent%] - Fragment Count [$used_ram_mb MB] - Details [Total: $total_ram_mb MB, Available: $free_ram_mb MB]" >> "$FRAG_LOG"
 ```
 
-## “Irruption of New Color”
+## i. “Irruption of New Color”
 
 Membuat shell script terminal.sh untuk menghubungkan semua shell scripts yang lokasinya berada di luar folder scripts
 ```bash
