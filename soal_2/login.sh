@@ -6,8 +6,8 @@ STATIC_SALT="ArcaeaSecretPassword"
 email="$1"
 password="$2"
 
-if [ ! -f "$DATABASE" ]; then
-    echo "Error: No registered users found. Please register first."
+if ! grep -q "^$email," "$DATABASE"; then
+    echo "Error: Email not registered!"
     exit 1
 fi
 
