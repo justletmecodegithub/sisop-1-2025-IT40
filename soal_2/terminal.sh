@@ -65,6 +65,7 @@ show_login_info() {
     echo "==================================="
 
     ./scripts/core_monitor.sh
+    ./scripts/frag_monitor.sh
 
     echo "Press Enter to continue..."
     read
