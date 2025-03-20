@@ -609,67 +609,268 @@ echo "[$times] - Core Usage [$cpu_usage%] - Terminal Model [$cpu_model]" >> "$CO
 
 
 
-# Soal 3 modul 1 sisop
-
-install text editor seperti gedit
+# Soal 3 modul
+membuat script dengan fungsi-fungsi yang dijalankan dengan cara ./dsotm.sh --play=”<Track>” dengan Track sebagai nama nama lagu yang dipilih.
+- a. lagu `speak to me` menampilkan afirmasi positif secara terus-menerus.
+- b. lagu `on the run` menampilkan progres bar di terminal yang berjalan secara dinamis hingga mencapai 100%.
+- c. lagu `time` menampilkan waktu saat ini secara real-time di terminal dan memperbaruinya setiap detik.
+- d. lagu `money` membuat efek "hujan uang" di terminal dengan karakter simbol mata uang yang turun secara acak dari atas ke bawah, mirip dengan efek "hujan kode" dalam film The Matrix.
+- e. lagu `brain damage`menampilkan proses-proses yang menggunakan CPU tertinggi dalam sistem secara real-time.
+  
+install text editor seperti `gedit`
+```bash
+$ sudo apt install gedit
+```
 ![Image](https://github.com/user-attachments/assets/b11c296e-2ec3-477b-9324-8812b9556db7)
-masuk ke gedit
-![Image](https://github.com/user-attachments/assets/a7956ab5-0fd6-48bd-99b3-76e0c488a967)
+untuk text editor yang saya pakai untuk pengerjaan soal ini adalah `gedit` maka diperlukan penginstallan terlebih dahulu
+
 memberi dsotm.sh access untuk execute
-![Image](https://github.com/user-attachments/assets/d8740d18-9013-4320-b25c-dfa84d8f91e7)
+```bash
+$ chmod +x dsotm.sh
+```
+dibutuhkan access execute untuk bisa menjalankan Bash maka menamabahkan access pada modifier dengan `chmod +x`
+
+masuk ke gedit
+```bash
+$ gedit dsotm.sh
+```
 ## a. Menampilkan affirmation word
-install jq
+install `jq`
+```bash
+$ sudo apt install jq
+```
 ![Image](https://github.com/user-attachments/assets/f1596016-9f28-4e76-878c-f04926ce468b)
-install curl
+`jq `diperlukan untuk mengestrak teks dari JSON respon API
+
+install `curl`
+```bash
+$ sudo apt install curl
+```
 ![Image](https://github.com/user-attachments/assets/9397fb33-c39c-47df-bdd4-9212b4ee6bae)
-melihat refrensi dari link
-![Image](https://github.com/user-attachments/assets/8c1ffd7e-1b60-47f3-aa02-98d56fec21d9)
-membuat kodingan
-![Image](https://github.com/user-attachments/assets/c27e8c97-c706-417a-be39-9e2a35a7f1f4)
+`curl` diperlukan untuk mentransfer data pada link ke terminal
+
+CODE
+```bash
+#!/bin/bash
+
+clear
+
+speak_to_me() {
+    while true; do
+        clear
+        curl -s https://www.affirmations.dev | jq -r '.affirmation'
+        sleep 1
+    done
+}
+```
+- program `clear` membersihkan tampilan pada layar
+- pada fungsi `speak_to_me` terdapat `while true; do` membuat infinite loop untuk menampilkan kata afirmasi, `clear` Membersihkan layar terminal agar hanya satu afirmasi tampil pada satu waktu, Mengambil data dari API https://www.affirmations.dev menggunakan `curl -s`, menggunakan `-s` mencegah tampilan progres atau error dari `curl`, `jq -r` digunakan untuk mengekstrak hanya teks afirmasi dari respons JSON, `sleep 1` membuat program menunggu selama 1 detik sebelum mengambil afirmasi berikutnya
+
 menjalankan kodingan
 ![Image](https://github.com/user-attachments/assets/409fe6d4-0dec-426d-850c-25992a67e379)
 hasil kodingan
 https://github.com/user-attachments/assets/ab4b9fb0-8e54-4318-8aa6-89a293f65f44
 
 ## b. membuat progress bar
-mencari refrensi
-![Image](https://github.com/user-attachments/assets/3d82935a-6e90-4d22-afc4-022614ba78e0)
-membuat kodingan
-![Image](https://github.com/user-attachments/assets/ccc1b28e-1a48-4b2a-be3c-a08ef8aefbbd)
-menjalankan kodingan
-![Image](https://github.com/user-attachments/assets/81031b16-8123-4e93-a4f9-16d2fa12e6d6)
-hasil kodingan
-![Image](https://github.com/user-attachments/assets/a0328323-7542-4b13-93d5-8b13e470b9f5)
-## c. Membuat kodingan
-![Image](https://github.com/user-attachments/assets/1bf92224-d790-44c1-8b14-2d1b83889d83)
-menjalankan kodingan
-![Image](https://github.com/user-attachments/assets/ef58cd2f-6799-4449-a842-0c723a1dc421)
-error
+CODE
+```bash
+on_the_run()  {
+	local progress=0
+    local bar_length=$(tput cols)
+    local filled
+
+    while [ "$progress" -lt 100 ]; do
+        clear
+        filled=$(( progress * bar_length / 100 ))
+        printf "["
+        printf "%0.s#" $(seq 1 $filled)
+        printf "%0.s-" $(seq $filled $bar_length)
+        printf "] %d%%\n" "$progress"
+        progress=$(( progress + RANDOM % 10 + 1 ))
+        sleep $(awk -v min=0.1 -v max=1 'BEGIN{srand(); print min+rand()*(max-min)}')
+    done
+}
+```
+- menginisialisasi variabel untuk tracking progres dan menentukan panjang progress bar sesuai lebar terminal.`local progress=0` Variabel progress dimulai dari 0, `bar_length=$(tput cols)` Mengambil lebar terminal dalam jumlah kolom , `filled `  Variabel untuk menyimpan jumlah karakter '#' yang terisi dalam progress bar
+- untuk menampilkan tampilan progress bar. Menggunakan loop untuk terus memperbarui progress bar hingga mencapai 100%. Jumlah karakter '#' dihitung berdasarkan persentase progress.`while [ "$progress" -lt 100 ]; do`   Looping selama progress kurang dari 100%, `filled=$(( progress * bar_length / 100 )) ` Menghitung berapa banyak karakter '#' yang harus ditampilkan
+-  `printf "%0.s#" $(seq 1 $filled)`  Mencetak '#' sebanyak `filled` kali (menunjukkan progress yang telah dicapai), `"%0.s-" $(seq $filled $bar_length)`  Mencetak '-' untuk sisa progress bar yang belum terisi, `"] %d%%\n" "$progress"`  Menampilkan persentase progress di samping progress bar
+-`progress=$(( progress + RANDOM % 10 + 1 ))` Progress akan bertambah secara acak antara 1% hingga 10% pada setiap iterasi, memberikan efek progres yang tidak monoton
+- `sleep $(awk -v min=0.1 -v max=1 'BEGIN{srand(); print min+rand()*(max-min)}')`Menambahkan jeda acak antara 0.1 hingga 1 detik sebelum progres bar diperbarui, memberikan efek variasi waktu antara setiap update 
+
+## c. Menampilkan live clock
+CODE
+```bash
+time_Display() {
+    while true; do
+        clear
+        date "+%Y-%m-%d %H:%M:%S"
+        sleep 1
+    done
+}
+```
+-menggunakan fungsi `time_Display()` karena jika menggunakan `time` adalah salah satu command di linux untuk memperlihatkan waktu yang dibutuhkan untuk mengesekusi command lain yang berarti jika menggunakan `time` akan terjadi error.
 ![Image](https://github.com/user-attachments/assets/f33232d8-b066-42f1-a920-ba57a03b5616)
-perbaikan kodingan
-![Image](https://github.com/user-attachments/assets/8c0383f6-af69-4f1d-9f96-ff1b6f37733e)
-menjalankan revisi kodingan
-![Image](https://github.com/user-attachments/assets/ef58cd2f-6799-4449-a842-0c723a1dc421)
-hasil kodingan
-https://github.com/user-attachments/assets/27817664-2b52-473c-ba35-126d8aceb356
+
+-menampilkan waktu `date "+%Y-%m-%d %H:%M:%S"` dengan format: `%Y` tahun, `%m` bulan, `%d` tanggal, `%H` jam, `%M` menit, `%S` detik.
 
 ## d. Membuat animasi Matrix
-mencari refrensi
-![Image](https://github.com/user-attachments/assets/b5c552fd-1cdb-49b5-b655-09325cef78d8)
-![Image](https://github.com/user-attachments/assets/34c27995-6f1d-48e4-a548-ce9f55d1236c)
-membuat kodingan
-![Image](https://github.com/user-attachments/assets/fe23f4ca-cbd2-4f16-b5e6-55ad12fdc9c8)
+CODE
+```bash
+money() {
+	chars=("💲" "€" "£" "¥" "¢" "₹" "₩" "₿" "₣")
+	rows=$(tput lines)
+	cols=$(tput cols)
+	while true; do
+    col=$((RANDOM % cols))  # Pick a random column
+    char=${chars[$((RANDOM % ${#chars[@]}))]}  # Pick a random character
+    tput cup 0 $col  # Move cursor to the top of the column
+    echo -ne "\033[32m$char\033[0m"  # Print the character in green
+
+    for ((i=1; i<rows; i++)); do
+        tput cup $i $col
+        echo -ne "\033[32m$char\033[0m"
+        sleep 0.1
+    done
+done
+}
+```
+-Array `chars` berisi berbagai simbol mata uang internasional, seperti dolar (💲), euro (€), pound (£), yen (¥), dan sebagainya.
+-Mengambil jumlah baris `(rows)` dan kolom `(cols)` terminal menggunakan `tput`.
+-`col=$((RANDOM % cols))` Memilih kolom acak (col) dalam rentang 0 hingga cols - 1, ` char=${chars[$((RANDOM % ${#chars[@]}))]}`Memilih simbol mata uang secara acak dari array,  `tput cup 0 $col`Memindahkan kursor ke baris 0 (atas) pada kolom yang dipilih secara acak, Mencetak simbol mata uang di terminal dengan warna hijau `(\033[32m)`.
 menjalankan kodingan
 ![Image](https://github.com/user-attachments/assets/cef0c296-662f-4fd6-9257-fd1a10a11d6f)
 hasil
 https://github.com/user-attachments/assets/3de6bc35-af02-4686-858e-de4662534f7f
 
-## memperlihat proses cpu & memory
-e. membuat kodingan
-![Image](https://github.com/user-attachments/assets/4818bec7-624f-4688-beb8-b0f3595abe20)
-menjalankan kodingan
-![Image](https://github.com/user-attachments/assets/35366164-d93e-4aa6-9e9a-bade7d32e5e1)
+## e. memperlihat proses cpu & memory
+```bash
+brain_damage() {
+    while true; do
+        clear
+        ps -eo pid,comm,%cpu,%mem --sort=-%cpu | head -n 20
+        sleep 1
+    done
+}
+
+```
+-Menjalankan perintah `ps` untuk menampilkan daftar proses berdasarkan penggunaan CPU tertinggi.
+
+`ps -eo pid,comm,%cpu,%mem` Menampilkan daftar proses dengan informasi berikut:
+
+`pid` Process ID (ID proses).
+`comm` Nama perintah yang menjalankan proses.
+`%cpu` Penggunaan CPU dalam persentase.
+`%mem` Penggunaan memori dalam persentase.
+`--sort=-%cpu` Mengurutkan daftar proses berdasarkan penggunaan CPU dari yang terbesar ke terkecil (- berarti descending).
+
+`head -n 20` Menampilkan hanya 20 proses dengan penggunaan CPU tertinggi.
+
+## membuat case untuk nanti cara dijalankan
+```bash
+case "$1" in
+    --play="Speak to Me")
+        speak_to_me
+        ;;
+    --play="On the Run")
+        on_the_run
+        ;;
+    --play="Time")
+        time_Display
+        ;;
+    --play="Money")
+        money
+        ;;
+    --play="Brain Damage")
+        brain_damage
+        ;;
+    *)
+        echo "Usage: ./dsotm.sh --play=\"<Track>\""
+        echo "Available Tracks: Speak to Me, On the Run, Time, Money, Brain Damage"
+        exit 1
+        ;;
+esac
+```
+dengan format `./dsotm.sh --play="<track>"` jika argumen yang cocok program akan menjalankan fungsi yang sesuai
+
+jika argumen tidak sesuai maka akan memperlihatkan
+```bash
+echo "Usage: ./dsotm.sh --play=\"<Track>\""
+ echo "Available Tracks: Speak to Me, On the Run, Time, Money, Brain Damage"
+```
+## hasil CODE
+a.
+
+Menjalankan argumen
+```bash
+$ ./dsotm.sh --play="Speak to Me"
+```
+hasil kodingan
+https://github.com/user-attachments/assets/ab4b9fb0-8e54-4318-8aa6-89a293f65f44
+
+b.
+
+Menjalankan argumen
+```bash
+$ ./dsotm.sh --play="On the Run"
+```
+hasil kodingan
+![Image](https://github.com/user-attachments/assets/a0328323-7542-4b13-93d5-8b13e470b9f5)
+
+c.
+
+Menjalankan argumen
+```bash
+$ ./dsotm.sh --play="Time"
+```
+hasil kodingan
+https://github.com/user-attachments/assets/27817664-2b52-473c-ba35-126d8aceb356
+
+d.
+
+Menjalankan argumen
+```bash
+$ ./dsotm.sh --play="Money"
+```
+hasil
+https://github.com/user-attachments/assets/3de6bc35-af02-4686-858e-de4662534f7f
+
+e.
+
+Menjalankan argumen
+```bash
+$ ./dsotm.sh --play="Brain Damage"
+```
 hasil
 ![Image](https://github.com/user-attachments/assets/bd4fd34d-51c8-436e-b70a-67376c51b2d2)
-membuat case untuk nanti cara dijalankan
-![Image](https://github.com/user-attachments/assets/c73fa09c-b0d7-455e-80cc-494b792d4b87)
+
+## revisi Soal
+pada subsoal b progress bar tidar terjadi hanya pada 1 baris terminal dan juga progress bar tidak mencapai 100%
+```bash
+on_the_run() {
+    local progress=0
+    local bar_length=50 
+    
+    while [ "$progress" -le 100 ]; do
+        local filled=$(( progress * bar_length / 100 ))
+        
+        printf "\r["
+        printf "%0.s#" $(seq 1 $filled)
+        printf "%0.s-" $(seq $filled $bar_length)
+        printf "] %d%%" "$progress"
+        
+        progress=$(( progress + RANDOM % 10 + 1 ))
+        
+        if [ "$progress" -gt 100 ]; then
+            progress=100
+        fi
+
+        sleep $(awk -v min=0.1 -v max=0.5 'BEGIN{srand(); print min+rand()*(max-min)}')
+    done
+```
+`local bar_length=50` membuat panjang bar bisa tercangkup pada satu baris saja dan 
+`if [ "$progress" -gt 100 ]; then
+            progress=100
+        fi` membatasi progress bar hingga maksimal 100%
+
+hasil Revisi
+![Screenshot 2025-03-20 232748](https://github.com/user-attachments/assets/be100871-e219-4697-b871-6f8da9972958)
