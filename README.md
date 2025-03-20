@@ -51,6 +51,10 @@ hashed_password=$(echo -n "${STATIC_SALT}${password}" | sha256sum | awk '{print 
 echo "$email,$username,$hashed_password" >> "$DATABASE"
 ```
 
+- `DATABASE="data/player.csv"` ini berfungsi untuk sebagai tempat dimana output akan disimpan.
+- `email="$1", username="$2", password="$3"` berfungsi untuk menyimpan parameter satu sampai 3 ke dalam variabel tersebut.
+- `echo "$email,$username,$hashed_password" >> "$DATABASE"` mengirimkan output ke database.
+
 Membuat login.sh
 ```bash
 $ nano login.sh
@@ -86,14 +90,14 @@ fi
 ```
 ## b. “Radiant Genesis”
 
-Email harus memiliki format yang benar dengan tanda @ dan titik
+Email harus memiliki format yang benar dengan tanda @ dan titik yang dapat dibuat menggunakan regex berikut
 ```bash
 valid_email() {
     local email="$1"
     [[ "$email" =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]
 }
 ```
-Dapat di cek dengan
+Kemudian kita dapat mengecek menggunakan kode ini
 ```bash
 if ! valid_email "$email"; then
     echo "Error: Invalid email format."
@@ -107,7 +111,7 @@ valid_password() {
     [[ ${#password} -ge 8 && "$password" =~ [a-z] && "$password" =~ [A-Z] && "$password" =~ [0-9] ]]
 }
 ```
-Dapat di cek dengan
+Kemudian kita dapat mengecek menggunakan kode ini
 ```bash
 if ! valid_password "$password"; then
     echo "Error: Password must be at least 8 characters, include uppercase, lowercase, and a number."
@@ -133,6 +137,7 @@ if ! grep -q "^$email," "$DATABASE"; then
     exit 1
 fi
 ```
+- Perbedaan pada kedua kode di atas terletak pada penggunaan `!` pada login.sh dan tidak ada pada register.sh. Tanda `!` pada login.sh berfungsi untuk membalikkan hasil pencarian, jadi kode `if` akan dijalankan jika email tidak ditemukan.
 
 ## d. “The Eternal Realm of Light”
 
@@ -145,7 +150,7 @@ STATIC_SALT="ArcaeaSecretPassword"
 ```bash
 hashed_password=$(echo -n "${STATIC_SALT}${password}" | sha256sum | awk '{print $1}')
 ```
-Tambahan untuk login.sh 
+Tambahan untuk login.sh untuk membandingkan hash password saat login dengan hash password yang ada di database
 ```bash
 data_hash=$(awk -F ',' -v email="$email" '$1 == email {print $3}' "$DATABASE")
 
@@ -156,6 +161,8 @@ else
     exit 1
 fi
 ```
+### Contoh output dari hashing menggunakan Static Salt
+
 
 ## e. “The Brutality of Glass”
 
@@ -498,7 +505,7 @@ Kurang dalam menambahkan kata "esac" setelah fungsi case option berakhir
 ![Image](https://github.com/user-attachments/assets/7bf70497-dab0-4a1b-a208-189e7a07785e)
 Solusi: menambahkan kata "esac" setelah case option berakhir.
 
-Tidak dapat menajalankan frag_monitor.sh jikan menajalankan core_monitor.sh.
+Tidak dapat menajalankan frag_monitor.sh setelah menjalankan core_monitor.sh.
 ![Image](https://github.com/user-attachments/assets/626d01db-7f45-4b5a-8dde-13b333191533)
 Solusi: menghapus ./scripts pada ./scripts/frag_monitor.sh yang terdapat pada shell scripts core_monitor.sh dan membuat command.
 ```bash
@@ -510,7 +517,60 @@ Solusi: menghapus ./scripts pada ./scripts/frag_monitor.sh yang terdapat pada sh
 Tidak dapat menajalankan frag_monitor.sh setelah menajalankan core_monitor.sh.
 ![Image](https://github.com/user-attachments/assets/626d01db-7f45-4b5a-8dde-13b333191533)
 Solusi: menghapus ./scripts pada ./scripts/frag_monitor.sh yang terdapat pada shell scripts core_monitor.sh dan membuat command. Hal tersebut terjadi karena shell scripts frag_monitor.sh sudah berada pada folder yang sama sehingga tidak perlu mendefinisikan ./scripts lagi.
+Kode sebelum revisi
 ```bash
+#!/bin/bash
+
+LOG_DIR="logs"
+CORE_LOG="$LOG_DIR/core.log"
+
+mkdir -p "$LOG_DIR"
+
+times=$(date +"%Y-%m-%d %H:%M:%S")
+
+echo "------------------------------------------"
+echo "               Arcaea Core                "
+echo "------------------------------------------"
+
+cpu_usage=$(grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage "%"}')
+cpu_model=$(grep "model name" /proc/cpuinfo | awk -F ':' 'NR==1 {print $2}'| awk '{$1=$1; print}')
+
+echo "Terminal: $cpu_model"
+echo "Core Usage: $cpu_usage%"
+echo "======================================"
+
+echo "[$times] - Core Usage [$cpu_usage%] - Terminal Model [$cpu_model]" >> "$CORE_LOG"
+
+./scripts/frag_monitor.sh
+```
+Kemuudian mengganti pemanggilan frag_monitor.sh dengan ini
+```bash
+./frag_monitor.sh
+```
+Kode akhir setelah di revisi
+```bash
+#!/bin/bash
+
+LOG_DIR="logs"
+CORE_LOG="$LOG_DIR/core.log"
+
+mkdir -p "$LOG_DIR"
+
+times=$(date +"%Y-%m-%d %H:%M:%S")
+
+echo "------------------------------------------"
+echo "               Arcaea Core                "
+echo "------------------------------------------"
+
+cpu_usage=$(grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage "%"}')
+cpu_model=$(grep "model name" /proc/cpuinfo | awk -F ':' 'NR==1 {print $2}'| awk '{$1=$1; print}')
+
+echo "Terminal: $cpu_model"
+echo "Core Usage: $cpu_usage%"
+echo "======================================"
+
+echo "[$times] - Core Usage [$cpu_usage%] - Terminal Model [$cpu_model]" >> "$CORE_LOG"
+
 ./frag_monitor.sh
 ```
 
