@@ -97,21 +97,21 @@ valid_email() {
     [[ "$email" =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]
 }
 ```
-Kemudian kita dapat mengecek menggunakan kode ini
+Kemudian kita mengecek format email yang digunakan
 ```bash
 if ! valid_email "$email"; then
     echo "Error: Invalid email format."
     exit 1
 fi
 ```
-Password harus memiliki minimal 8 karakter, setidaknya satu huruf kecil, satu huruf besar, dan satu angka 
+Password harus memiliki minimal 8 karakter, setidaknya satu huruf kecil, satu huruf besar, dan satu angka yang dapat dibuat melalui regex 
 ```bash
 valid_password() {
     local password="$1"
     [[ ${#password} -ge 8 && "$password" =~ [a-z] && "$password" =~ [A-Z] && "$password" =~ [0-9] ]]
 }
 ```
-Kemudian kita dapat mengecek menggunakan kode ini
+Kemudian kita mengecek format pasword
 ```bash
 if ! valid_password "$password"; then
     echo "Error: Password must be at least 8 characters, include uppercase, lowercase, and a number."
@@ -123,14 +123,14 @@ fi
 
 Jadikan sistem login/register tidak bisa memakai email yang sama (email = unique)
 
-Pada register.sh dapat menggunakan
+Pada register.sh kita menggunakan
 ```bash
 if grep -q "^$email," "$DATABASE"; then
     echo "Error: Email already registered!"
     exit 1
 fi
 ```
-Pada login.sh dapat menggunakan
+Pada login.sh kita menggunakan
 ```bash
 if ! grep -q "^$email," "$DATABASE"; then
     echo "Error: Email not registered!"
@@ -150,7 +150,7 @@ STATIC_SALT="ArcaeaSecretPassword"
 ```bash
 hashed_password=$(echo -n "${STATIC_SALT}${password}" | sha256sum | awk '{print $1}')
 ```
-Tambahan untuk login.sh untuk membandingkan hash password saat login dengan hash password yang ada di database
+Tambahan koed untuk login.sh yang berfungsi membandingkan hash password saat login dengan hash password yang ada di database
 ```bash
 data_hash=$(awk -F ',' -v email="$email" '$1 == email {print $3}' "$DATABASE")
 
@@ -162,7 +162,7 @@ else
 fi
 ```
 ### Contoh output dari hashing menggunakan Static Salt
-
+![Image](https://github.com/user-attachments/assets/b6f4275b-e1fa-4721-8931-0c83ee8e6aea)
 
 ## e. “The Brutality of Glass”
 
@@ -201,6 +201,8 @@ echo "[$times] - Core Usage [$cpu_usage%] - Terminal Model [$cpu_model]" >> "$CO
 
 ./scripts/frag_monitor.sh
 ```
+- `cpu_usage=$(grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage "%"}')` digunakan untuk menghitung penggunaan CPU dengan persentase yang di mana ini akan mencari kata cpu yang terdapat pada file `/proc/tat` pada sistem linux kita.
+- `cpu_model=$(grep "model name" /proc/cpuinfo | awk -F ':' 'NR==1 {print $2}'| awk '{$1=$1; print}')` digunakan untuk mengetahui CPU model yang kita gunakan yang dicari melalui kata model name yang ada di `/proc/cpuinfo`.
 
 ## f. “In Grief and Great Delight”
 
@@ -239,6 +241,13 @@ echo "========================================="
 
 echo "[$times] - Fragment Usage [$ram_usage_percent%] - Fragment Count [$used_ram_mb MB] - Details [Total: $total_ram_mb MB, Available: $free_ram_mb MB]" >> "$FRAG_LOG"
 ```
+- `total_ram=$(grep "MemTotal" /proc/meminfo | awk '{print $2}')` digunakan untuk menghitung total RAM yang kita miliki melalui kata MemTotal yang ada di /proc/meminfo.
+- `free_ram=$(grep "MemAvailable" /proc/meminfo | awk '{print $2}')` digunakan untuk mengetahui RAM yang bisa kita gunakan untuk saat ini melalui kata MemAvailable yang terdapat pada /proc/meminfo.
+- `used_ram=$((total_ram - free_ram))` menghitung peggunaan RAM kita.
+- `ram_usage_percent=$(( (used_ram * 100) / total_ram ))` menghitung persentase penggunaan RAM
+- `total_ram_mb=$((total_ram / 1024))` mengubah total RAM ke ukuran MB.
+- `used_ram_mb=$((used_ram / 1024))` mengubah penggunaan RAM ke ukuran MB.
+- `free_ram_mb=$((free_ram / 1024)` mengubah jumlah RAM yang dapat kita gunakan ke MB.
 
 ## g. “On Fate's Approach”
 
@@ -309,6 +318,9 @@ while true; do
     esac
 done
 ```
+- `CORE_SCRIPTS="./scripts/core_monitor.sh"` memudahkan untuk pemanggilan shell script core_monitor.sh
+- `FRAG_SCRIPTS="./scripts/frag_monitor.sh"` memudahkan untuk pemanggilan shell script frag_monitor.sh
+  
 Add/Remove CPU [Core] Usage
 ```bash
 add_cron_job() {
@@ -323,6 +335,8 @@ add_cron_job() {
     fi
 }
 ```
+-`add_cron_job()` menambahkan cron job pada setiap script dengan menggunakan `local job_command="* * * * * /bin/bash $script_data"` yang berarti akan berjalan setiap menit. Dan disini juga kita akan mengecek apakah sudah terdapat cron job yang aktif sebelumnya.
+
 ```bash
 remove_cron_job() {
     local script_data="$1"
@@ -335,6 +349,8 @@ remove_cron_job() {
     fi
 }
 ```
+- `remove_cron_job()` menghapus cron job yang sudah aktif sebelumnya.
+
 
 ## h. “The Disfigured Flow of Time”
 
@@ -358,6 +374,9 @@ times=$(date +"%Y-%m-%d %H:%M:%S")
 ```bash
 echo "[$times] - Core Usage [$cpu_usage%] - Terminal Model [$cpu_model]" >> "$CORE_LOG"
 ```
+#### Output yang dihasilkan dari format di atas pada core.log
+![Image](https://github.com/user-attachments/assets/30a1e5f9-4379-4999-92eb-16dc8b1d9b27)
+
 Menghubungkan ke frag_monitor.sh dengan format output [YYYY-MM-DD HH:MM:SS] - Fragment Usage [$RAM%] - Fragment Count [$RAM MB] - Details [Total: $TOTAL MB, Available: $AVAILABLE MB]
 ```bash
 LOG_DIR="logs"
@@ -372,6 +391,8 @@ times=$(date +"%Y-%m-%d %H:%M:%S")
 ```bash
 echo "[$times] - Fragment Usage [$ram_usage_percent%] - Fragment Count [$used_ram_mb MB] - Details [Total: $total_ram_mb MB, Available: $free_ram_mb MB]" >> "$FRAG_LOG"
 ```
+#### Output yang dihasilkan dari kode di atas pada file fragment.log
+![Image](https://github.com/user-attachments/assets/ccddb3e8-f34b-4b49-8a70-86d876dd32a0)
 
 ## i. “Irruption of New Color”
 
@@ -483,6 +504,12 @@ show_crontab() {
 
 show_main_menu
 ```
+- `show_main_menu()` menampilkan menut utama pada saat menjalankan scripts.
+- `register_user()` fungsi yang akan ditamplkan pada saat memilih option register dan kemudian ini akan terhubung dengan script `register.sh`.
+- `login_user()` fungsi yang akan ditampilkan pada saat memilih option login dan kemudian akan menjalankan scripts `login.sh`.
+- `show_login_info()` fungsi yang akan muncul jika sudah berhasil login dan kemudian akan memanggil script `core_monitor.sh` dan `frag_monitor.sh`.
+- `show_login_menu()` fungsi yang akan muncul setelah menekan enter pada `show_login_info()`.
+- `show_crontab()` menjalankan script `manager.sh`.
 
 ## Beberapa ERROR pada soal ini
 
