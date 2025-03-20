@@ -634,7 +634,7 @@ masuk ke gedit
 ```bash
 $ gedit dsotm.sh
 ```
-## a. Menampilkan affirmation word
+## a. Speak to Me
 install `jq`
 ```bash
 $ sudo apt install jq
@@ -671,7 +671,7 @@ menjalankan kodingan
 hasil kodingan
 https://github.com/user-attachments/assets/ab4b9fb0-8e54-4318-8aa6-89a293f65f44
 
-## b. membuat progress bar
+## b. On the Run
 CODE
 ```bash
 on_the_run()  {
@@ -697,7 +697,7 @@ on_the_run()  {
 -`progress=$(( progress + RANDOM % 10 + 1 ))` Progress akan bertambah secara acak antara 1% hingga 10% pada setiap iterasi, memberikan efek progres yang tidak monoton
 - `sleep $(awk -v min=0.1 -v max=1 'BEGIN{srand(); print min+rand()*(max-min)}')`Menambahkan jeda acak antara 0.1 hingga 1 detik sebelum progres bar diperbarui, memberikan efek variasi waktu antara setiap update 
 
-## c. Menampilkan live clock
+## c. Time
 CODE
 ```bash
 time_Display() {
@@ -713,7 +713,7 @@ time_Display() {
 
 -menampilkan waktu `date "+%Y-%m-%d %H:%M:%S"` dengan format: `%Y` tahun, `%m` bulan, `%d` tanggal, `%H` jam, `%M` menit, `%S` detik.
 
-## d. Membuat animasi Matrix
+## d. Money
 CODE
 ```bash
 money() {
@@ -742,7 +742,7 @@ menjalankan kodingan
 hasil
 https://github.com/user-attachments/assets/3de6bc35-af02-4686-858e-de4662534f7f
 
-## e. memperlihat proses cpu & memory
+## e. Brain Damage
 ```bash
 brain_damage() {
     while true; do
