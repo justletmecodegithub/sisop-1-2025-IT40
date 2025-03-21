@@ -1,3 +1,81 @@
+# SOAL 1
+
+Skrip ini dipake buat alisis data dari file `reading_data.csv` menggunakan Bash dan AWK. Skrip ini bisa membantu menemukan data duplikat, menghitung jumlah buku yang dibaca oleh seorang tokoh, serta menganalisis durasi membaca dan genre yang paling populer.
+
+---
+
+## 1A: Menemukan Data Duplikat & Menghitung Buku yang Dibaca oleh Chris Hemsworth
+
+### Perintah:
+
+```bash
+cd download && cat reading_data.csv && awk -F, '{count[$2]++; lines[$2]=lines[$2] ORS $0} END {for (i in count) if (count[i] > 1) print lines[i]}' reading_data.csv && count=$(grep "Chris Hemsworth" reading_data.csv | grep "Tablet" | wc -l) && echo "Chris Hemsworth membaca $count buku"
+```
+
+### Penjelasan:
+
+1. **`cd download`** → Masuk ke folder `download`.
+2. **`cat reading_data.csv`** → Menampilkan isi file.
+3. **`awk`** → Mencari dan menampilkan data yang duplikat berdasarkan kolom kedua.
+4. **`grep`** → Mencari data di mana `Chris Hemsworth` membaca dengan `Tablet`.
+5. **`wc -l`** → Menghitung jumlah baris yang cocok.
+6. **`echo`** → Menampilkan jumlah buku yang dibaca Chris Hemsworth.
+
+---
+
+## 1B: Menghitung Rata-Rata Durasi Membaca dengan Tablet
+
+### Perintah:
+
+```bash
+awk -F',' '$8 ~ /Tablet/ {sum+=$6; count++} END {if (count > 0) print "Rata-rata durasi membaca dengan Tablet adalah", sum/count, "menit."}' reading_data.csv
+```
+
+### Penjelasan:
+
+1. **`-F','`** → Menentukan pemisah kolom sebagai koma.
+2. **`$8 ~ /Tablet/`** → Memeriksa apakah kolom 8 berisi "Tablet".
+3. **`sum+=$6`** → Menjumlahkan durasi membaca (kolom 6).
+4. **`count++`** → Menghitung jumlah baris yang cocok.
+5. **`END`** → Setelah semua baris diproses, hitung rata-rata dan cetak hasilnya.
+
+---
+
+## 1C: (duplikat dari 1B, sama aja)
+
+---
+
+## 1D: Menemukan Genre Buku Paling Populer di Asia Setelah 2023
+
+### Perintah:
+
+```bash
+awk -F',' '$9 == "Asia" && $5 > "2023-12-31" {genre_count[$4]++} END {max_genre = ""; max_count = 0; for (genre in genre_count) {if (genre_count[genre] > max_count) {max_count = genre_count[genre]; max_genre = genre;}} print "Genre paling populer di Asia setelah 2023 adalah", max_genre, "dengan", max_count, "buku."}' reading_data.csv
+```
+
+### Penjelasan:
+
+1. **`$9 == "Asia"`** → Pilih data yang berasal dari Asia.
+2. **`$5 > "2023-12-31"`** → Pilih data setelah tahun 2023.
+3. **`genre_count[$4]++`** → Hitung jumlah kemunculan setiap genre (kolom 4).
+4. **`END`** → Setelah semua data diproses:
+   - Cari genre dengan jumlah terbanyak.
+   - Cetak hasilnya.
+
+---
+
+## Kesimpulan
+
+Skrip ini gacor buat:
+✔️ Menemukan data yang duplikat.
+✔️ Menghitung jumlah buku yang dibaca berdasarkan filter tertentu.
+✔️ Menghitung rata-rata durasi membaca dengan perangkat tertentu.
+✔️ Menentukan genre buku paling populer dalam suatu wilayah setelah tahun tertentu.
+
+Cocok waktu analisis data sederhana dengan file CSV tanpa perlu software tambahan selain Bash dan AWK. 🚀
+
+
+
 # Soal 2 
 
 ## a. “First Step in a New World”
@@ -874,3 +952,147 @@ on_the_run() {
 
 hasil Revisi
 ![Screenshot 2025-03-20 232748](https://github.com/user-attachments/assets/be100871-e219-4697-b871-6f8da9972958)
+
+
+# SOAL 4
+# breakdown pokemon analisys
+
+## 1. Bikin Shebang & Cek Argumen
+
+Pertama, kita harus tentuin interpreter yang bakal dipakai, dalam hal ini Bash. Terus kita cek dulu nih, minimal ada 2 argumen yang masuk (nama file & perintah). Kalau kurang, kita kasih error biar nggak jalan sembarangan.
+
+```bash
+#!/bin/bash
+# Cek argumen minimal
+if [ $# -lt 2 ]; then
+    echo "Error: Need more argument boys! use --help for option information."
+    exit 1
+fi
+```
+
+---
+
+## 2. Simpan Argumen & Cek File
+
+Sekarang kita ambil argumen yang dikasih user dan simpan di variabel biar gampang dipakai. Terus, kita pastikan kalau file yang dikasih itu beneran ada.
+
+```bash
+FILE=$1
+COMMAND=$2
+OPTION=$3
+
+if [ ! -f "$FILE" ]; then
+    echo "Error: File '$FILE' file not found my lord!"
+    exit 1
+fi
+```
+
+---
+
+## 3. Bikin Fungsi show_info()
+
+Ini fungsinya buat nampilin data Pokemon dengan usage tertinggi, baik yang "adjusted" maupun "raw". Kita pake `awk` buat parsing CSV dan nyari nilai tertinggi.
+
+```bash
+show_info() {
+    highest_usage=$(awk -F, 'NR > 1 { if ($2+0 > max_usage) { max_usage = $2+0; name=$1 } } END { print name, max_usage"%" }' "$FILE")
+    highest_raw=$(awk -F, 'NR > 1 { if ($3+0 > max_raw) { max_raw = $3+0; name=$1 } } END { print name, max_raw" uses" }' "$FILE")
+    
+    echo "Summary of $FILE"
+    echo "Highest Adjusted Usage: $highest_usage"
+    echo "Highest Raw Usage: $highest_raw"
+}
+```
+
+---
+
+## 4. Bikin Fungsi sort_data()
+
+Fungsi ini buat ngurutin data berdasarkan kolom yang dipilih user. Kalau nggak ada opsi yang dikasih, kasih error. Terus, kita pake `sort` buat ngurutin file CSV.
+
+```bash
+sort_data() {
+    if [ -z "$OPTION" ]; then
+        echo "Error: Plz spesialize column for sorting!"
+        exit 1
+    fi
+
+    case "$OPTION" in
+        name) column=1; sort_option="-f" ;;
+        usage) column=2; sort_option="-nr" ;;
+        raw) column=3; sort_option="-nr" ;;
+        hp) column=6; sort_option="-nr" ;;
+        atk) column=7; sort_option="-nr" ;;
+        def) column=8; sort_option="-nr" ;;
+        spatk) column=9; sort_option="-nr" ;;
+        spdef) column=10; sort_option="-nr" ;;
+        speed) column=11; sort_option="-nr" ;;
+        *)
+            echo "Error: column is not valid for sorting!."
+            exit 1
+        ;;
+    esac
+
+    {
+        head -n 1 "$FILE"
+        awk -F, 'NR > 1 { print $0 }' "$FILE" | LC_ALL=C sort -t, -k"$column","$column" $sort_option
+    } > sorted_output.csv
+
+    cat sorted_output.csv
+}
+```
+
+---
+
+## 5. Bikin Fungsi show_help()
+
+Fungsi ini buat nampilin panduan pemakaian script dengan warna-warna biar lebih keren.
+
+```bash
+show_help() {
+    YELLOW='\e[33m'
+    RED='\e[31m'
+    BLUE='\e[34m'
+    NC='\e[0m'
+    
+    echo -e "Usage: ./pokemon_analysis.sh <file.csv> <command> [options]"
+    echo -e " WELCOME TO POKESUSS!!!"
+    cat suss.txt
+    
+    echo -e "${YELLOW}Commands:${NC}"
+    echo -e " ${RED}--help${NC} ${BLUE}Display Help${NC}"
+    echo -e " ${RED}--info${NC} ${BLUE}Display highest adjusted and raw usage${NC}"
+    echo -e " ${RED}--sort <column>${NC} ${BLUE}Sort the data by specific column${NC}"
+    echo -e " ${RED}--grep <name>${NC} ${BLUE}Search Pokemons by name${NC}"
+}
+```
+
+---
+
+## 6. Handle Command dari User
+
+Bagian terakhir, kita tinggal pasang `case` buat ngejalanin fungsi sesuai command yang dikasih user.
+
+```bash
+case "$COMMAND" in
+    --help) show_help ;;
+    --info) show_info ;;
+    --sort) sort_data ;;
+    --grep) search_pokemon ;;
+    --filter) search_pokemon ;;
+    *) echo "Error: unknown command ma boyss!" ; exit 1 ;;
+esac
+```
+
+---
+
+## Selesai!
+
+Jadi gitu cara nulis programnya dari awal sampai akhir. Tinggal disave sebagai `pokemon_analysis.sh`, kasih permission eksekusi pakai:
+
+```bash
+chmod +x pokemon_analysis.sh
+```
+
+Seleseai
+
