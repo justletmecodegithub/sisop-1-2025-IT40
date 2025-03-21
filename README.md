@@ -1,4 +1,5 @@
 # SOAL 1
+dikerjakan oleh ahmad Ibnu athaillah (5027241024) 
 
 Skrip ini dipake buat alisis data dari file `reading_data.csv` menggunakan Bash dan AWK. Skrip ini bisa membantu menemukan data duplikat, menghitung jumlah buku yang dibaca oleh seorang tokoh, serta menganalisis durasi membaca dan genre yang paling populer.
 
@@ -77,6 +78,7 @@ Cocok waktu analisis data sederhana dengan file CSV tanpa perlu software tambaha
 
 
 # Soal 2 
+dikerjakan oleh I Gede Bagus Saka Sinatrya (5027241088)
 
 ## a. “First Step in a New World”
 
@@ -688,6 +690,8 @@ echo "[$times] - Core Usage [$cpu_usage%] - Terminal Model [$cpu_model]" >> "$CO
 
 
 # Soal 3 modul
+dikerjakan oleh Muhammad Ahsani Taqwiim Rakhman (5027241099) 
+
 membuat script dengan fungsi-fungsi yang dijalankan dengan cara ./dsotm.sh --play=”<Track>” dengan Track sebagai nama nama lagu yang dipilih.
 - a. lagu `speak to me` menampilkan afirmasi positif secara terus-menerus.
 - b. lagu `on the run` menampilkan progres bar di terminal yang berjalan secara dinamis hingga mencapai 100%.
@@ -955,6 +959,7 @@ hasil Revisi
 
 
 # SOAL 4
+dikerjakan oleh ahmad Ibnu athaillah (5027241024) 
 # breakdown pokemon analisys
 
 ## 1. Bikin Shebang & Cek Argumen
